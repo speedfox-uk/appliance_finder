@@ -26,13 +26,12 @@ public class MainActivity extends AppCompatActivity {
     private class ApplianceListener implements Runnable{
 
         private volatile boolean running = true;
-
+        private DatagramSocket dsocket;
         @Override
         public void run() {
             try {
                 int port = 2121;
-
-                DatagramSocket dsocket = new DatagramSocket(port);
+                dsocket = new DatagramSocket(port);
                 byte[] buffer = new byte[2048];
                 final DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 
@@ -59,13 +58,14 @@ public class MainActivity extends AppCompatActivity {
         }
 
         public void stop(){
+            dsocket.close();
             running = false;
         }
     }
 
     private class SendPacketOperation implements Runnable {
 
-        private boolean repeat = true;
+        private volatile boolean repeat = true;
 
         @Override
         public void run(){
@@ -151,16 +151,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        listener.stop();
+    protected void onPause() {
+        super.onPause();
         broadcaster.stop();
+
+        listener.stop();
         try {
             listenerThread.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         listAdapter.clear();
+        /*try {
+            broadcastHandler.wait();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }*/
     }
 
     @Override
@@ -172,12 +178,6 @@ public class MainActivity extends AppCompatActivity {
         broadcastHandler = new Handler();
         broadcaster = new SendPacketOperation();
         broadcastHandler.post(broadcaster);
-    }
-
-
-
-    public void sendPacket(View v){
-
     }
 
 }

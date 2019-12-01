@@ -27,7 +27,7 @@ public class ApplianceActivity extends AppCompatActivity {
         webView.getSettings().setLoadWithOverviewMode(true);
         webView.setWebChromeClient(new WebChromeClient());
         String ipAddress = getIntent().getExtras().getString("ip_address");
-        webView.loadUrl("http://"+ipAddress);
+        webView.loadUrl("http://" + ipAddress);
     }
 
 
